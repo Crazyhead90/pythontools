@@ -4,7 +4,7 @@
 sudo apt-get install openjdk-11-jdk
 
 #Add the neo4j repo to your apt sources:
-wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/neotechnology.gpg
+curl -fsSL https://debian.neo4j.com/neotechnology.gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/neotechnology.gpg
 echo 'deb [signed-by=/usr/share/keyrings/neotechnology.gpg] https://debian.neo4j.com stable 4' > /etc/apt/sources.list.d/neo4j.list
 
 #Install apt-transport-https with apt
