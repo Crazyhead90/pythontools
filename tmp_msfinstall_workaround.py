@@ -12,4 +12,4 @@ for line in range(len(msfinstall_lines)):
 os.remove('msfinstall')
 with open('msfinstall','w') as f:
   for item in msfinstall_lines:
-    f.write(f'{item}\n')
+    f.write(f'{item}')
