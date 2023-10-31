@@ -15,4 +15,4 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 sudo apt-get update
-sudo apt-get install docker-compose-plugin
+sudo apt-get install docker docker-compose-plugin
