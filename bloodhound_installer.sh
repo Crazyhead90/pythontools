@@ -8,8 +8,8 @@ unzip BloodHound-linux-x64.zip
 pwd
 
 #Move files to installer location
-mv ./Bloodhound-linux-x64/* ./
+mv ./BloodHound-linux-x64/* ./
 
 #Remove leftovers
-rm Bloodhound-linux-x64.zip
-rm -r Bloodhound-linux-x64
+rm BloodHound-linux-x64.zip
+rm -r BloodHound-linux-x64
