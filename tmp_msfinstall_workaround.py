@@ -7,3 +7,7 @@ for line in range(len(msfinstall_lines)):
     msfinstall_lines[line] = '  print_pgp_key | sudo gpg --dearmor -o /usr/share/keyrings/metasploit-framework.gpg'
   if msfinstall_lines[line] == '  echo "deb $DOWNLOAD_URI/apt lucid main" > $LIST_FILE':
     msfinstall_lines[line] = '  echo "deb [signed-by=/usr/share/keyrings/metasploit-framework.gpg] $DOWNLOAD_URI/apt lucid main" > $LIST_FILE'
+os.remove('msfinstall')
+with open('msfinstall','w') as f:
+  for item in msfinstall_lines:
+    f.write(f'{item}\n')
