@@ -5,3 +5,11 @@ curl -s https://api.github.com/repos/BloodHoundAD/BloodHound/releases/latest | g
 
 #Unzip
 unzip BloodHound-linux-x64.zip
+pwd
+
+#Move files to installer location
+mv ./Bloodhound-linux-x64/* ./
+
+#Remove leftovers
+rm Bloodhound-linux-x64.zip
+rm -r Bloodhound-linux-x64
