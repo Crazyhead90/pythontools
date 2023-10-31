@@ -18,4 +18,4 @@ echo \
 sudo apt-get update
 sudo apt-get install -y docker.io docker-compose-plugin
 
-curl https://raw.githubusercontent.com/SpecterOps/bloodhound/main/examples/docker-compose/docker-compose.yml | docker compose -f - up
+echo "curl https://raw.githubusercontent.com/SpecterOps/bloodhound/main/examples/docker-compose/docker-compose.yml | docker compose -f - up" > bloodhound.sh
