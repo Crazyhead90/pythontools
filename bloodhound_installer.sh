@@ -5,6 +5,3 @@ curl -s https://api.github.com/repos/BloodHoundAD/BloodHound/releases/latest | g
 
 #Unzip
 unzip BloodHound-linux-x64.zip
-
-#Remove zip
-rm Bloodhound-linux-x64.zip
