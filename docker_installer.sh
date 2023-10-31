@@ -17,4 +17,4 @@ echo \
 
 sleep 1s
 sudo apt-get update
-sudo apt-get install docker.io docker-compose-plugin
+sudo apt-get install -y docker.io docker-compose-plugin
