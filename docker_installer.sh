@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Remove existing files
-[ -f '/usr/share/keyrings/docker.gpg' ] && sudo rm '/usr/share/keyrings/docker.gpg'
-[ -f '/etc/apt/sources.list.d/docker.list' ] && sudo rm '/etc/apt/sources.list.d/docker.list'
+[ -f '/usr/share/keyrings/docker.gpg' ] && rm '/usr/share/keyrings/docker.gpg'
+[ -f '/etc/apt/sources.list.d/docker.list' ] && rm '/etc/apt/sources.list.d/docker.list'
 # Add Docker's official GPG key:
 sudo apt-get update
 sudo apt-get install ca-certificates curl
